@@ -33,12 +33,13 @@ Each step is a separate branch + PR so the repo history tells the “story” of
 
 - [x] **Step 03 — funct outline**
 
-  - New branch get-mod-count-api``
+  - New branch `get-mod-count-api`
   - Write Python funct script to:
     - raise implement error as func isnt written yet
 
 - [ ] **Step 04 — Watcher script**
 
+  - step 4a: runner stub
   - New branch `step-04-watcher-script`
   - Write Python script to:
     - Find BG3 game id via mod.io API
