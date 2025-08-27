@@ -31,13 +31,13 @@ Each step is a separate branch + PR so the repo history tells the “story” of
   - Update README with setup instructions
   - Commit + push + PR + merge
 
-- [x] **Step 03 — funct outline**
+- [x] **Step 03 — function outline**
 
   - New branch `get-mod-count-api`
-  - Write Python funct script to:
-    - raise implement error as func isnt written yet
+  - Add `get_mod_count()` stub that raises `NotImplementedError`
+  - Commit + push + PR + merge
 
-- [ ] **Step 04 — Watcher script**
+- [x] **Step 04 — Watcher script**
 
   - step 4a: runner stub
   - New branch `step-04-watcher-script`
@@ -51,19 +51,19 @@ Each step is a separate branch + PR so the repo history tells the “story” of
 
 - [ ] **Step 05 — Documentation polish**
 
-  - New branch `step-04-qol`
+  - New branch `step-05-qol`
   - Expand README with “How it works” and “Running locally”
   - Add instructions for installing deps, running script
   - Commit + push + PR + merge
 
 - [ ] **Step 06 — Scheduling**
 
-  - New branch `step-05-cron`
+  - New branch `step-06-cron`
   - Add notes (`docs/cron.md`) on running with `cron` (Mac)
   - Commit + push + PR + merge
 
 - [ ] **Step 07 — GitHub Actions (optional but nice)**
-  - New branch `step-06-actions`
+  - New branch `step-07-actions`
   - Add `.github/workflows/schedule.yml` to run hourly
   - Store secrets in GitHub Actions
   - Commit + push + PR + merge
