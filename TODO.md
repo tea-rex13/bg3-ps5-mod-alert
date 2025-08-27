@@ -23,7 +23,7 @@ Each step is a separate branch + PR so the repo history tells the “story” of
   - Update `README.md` with skeleton description
   - Commit + push + open PR + merge
 
-- [ ] **Step 02 — Config & secrets**
+- [x] **Step 02 — Config & secrets**
 
   - New branch `step-02-config`
   - Add `.env.example` for API key + email settings
@@ -31,9 +31,15 @@ Each step is a separate branch + PR so the repo history tells the “story” of
   - Update README with setup instructions
   - Commit + push + PR + merge
 
-- [ ] **Step 03 — Watcher script**
+- [x] **Step 03 — funct outline**
 
-  - New branch `step-03-watcher-script`
+  - New branch get-mod-count-api``
+  - Write Python funct script to:
+    - raise implement error as func isnt written yet
+
+- [ ] **Step 04 — Watcher script**
+
+  - New branch `step-04-watcher-script`
   - Write Python script to:
     - Find BG3 game id via mod.io API
     - Fetch PS5 mod count
@@ -42,20 +48,20 @@ Each step is a separate branch + PR so the repo history tells the “story” of
   - Test with `--simulate`
   - Commit + push + PR + merge
 
-- [ ] **Step 04 — Documentation polish**
+- [ ] **Step 05 — Documentation polish**
 
   - New branch `step-04-qol`
   - Expand README with “How it works” and “Running locally”
   - Add instructions for installing deps, running script
   - Commit + push + PR + merge
 
-- [ ] **Step 05 — Scheduling**
+- [ ] **Step 06 — Scheduling**
 
   - New branch `step-05-cron`
   - Add notes (`docs/cron.md`) on running with `cron` (Mac)
   - Commit + push + PR + merge
 
-- [ ] **Step 06 — GitHub Actions (optional but nice)**
+- [ ] **Step 07 — GitHub Actions (optional but nice)**
   - New branch `step-06-actions`
   - Add `.github/workflows/schedule.yml` to run hourly
   - Store secrets in GitHub Actions
