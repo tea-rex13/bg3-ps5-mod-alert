@@ -37,40 +37,20 @@ Each step is a separate branch + PR so the repo history tells the “story” of
   - Add `get_mod_count()` stub that raises `NotImplementedError`
   - Commit + push + PR + merge
 
-- [x] **Step 04 — Watcher script**
-
-  - step 4a: runner stub
-  - New branch `step-04-watcher-script`
-  - Write Python script to:
-    - Find BG3 game id via mod.io API
-    - Fetch PS5 mod count
-    - Store last count in JSON
-    - Send email when count increases
-  - Test with `--simulate`
-  - Commit + push + PR + merge
-
+- [x] **Step 04 — Watcher scaffold**
+  - `state.py` (JSON load/save)
+  - `mailer.py` (SMTP via `.env`, tested; note macOS certs fix)
+  - `mod_alert.py` (`run_check`, CLI: `--test-email`, `--baseline`, `--interval-mins`)
 - [ ] **Step 05 — Documentation polish**
-
-  - New branch `step-05-qol`
-  - Expand README with “How it works” and “Running locally”
-  - Add instructions for installing deps, running script
-  - Commit + push + PR + merge
-
-- [ ] **Step 06 — Scheduling**
-
-  - New branch `step-06-cron`
-  - Add notes (`docs/cron.md`) on running with `cron` (Mac)
-  - Commit + push + PR + merge
-
-- [ ] **Step 07 — GitHub Actions (optional but nice)**
-  - New branch `step-07-actions`
-  - Add `.github/workflows/schedule.yml` to run hourly
-  - Store secrets in GitHub Actions
-  - Commit + push + PR + merge
-
----
-
-### Notes
-
-- Keep each step small: branch → commit(s) → PR → merge.
-- Update this file as you go — tick `[x]` when done.
+  - Clean `.env.example` placeholders (no secrets)
+  - README: setup, running, env variables, TLS fix note, troubleshooting
+- [ ] **Step 06 — Implement `get_mod_count` (mod.io API)**
+  - `.env` keys: `MODIO_API_KEY`, `MODIO_GAME_ID`, `MODIO_PLATFORM=ps5`
+  - Add `--find-game <name>` helper to discover game ID
+  - Use `result_total` (fallback to `len(data)` if needed)
+- [ ] **Step 07 — Scheduling**
+  - macOS LaunchAgent instructions (run every N minutes)
+- [ ] **Step 08 — Nice-to-haves**
+  - Logging + retries
+  - `--simulate` mode / cooldown batching
+  - Unit tests for state/mailer/count
