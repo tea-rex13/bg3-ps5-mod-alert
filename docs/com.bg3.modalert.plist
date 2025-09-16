@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+  <key>Label</key><string>com.bg3.modalert</string>
+  <key>ProgramArguments</key><array>
+    <string>__PYTHON__</string>
+    <string>-m</string>
+    <string>src.mod_alert</string>
+  </array>
+  <key>WorkingDirectory</key><string>__REPO__</string>
+  <key>StartCalendarInterval</key>
+  <array>
+    <dict><key>Hour</key><integer>7</integer><key>Minute</key><integer>0</integer></dict>
+    <dict><key>Hour</key><integer>14</integer><key>Minute</key><integer>0</integer></dict>
+    <dict><key>Hour</key><integer>19</integer><key>Minute</key><integer>0</integer></dict>
+  </array>
+  <key>RunAtLoad</key><true/>
+  <key>StandardOutPath</key><string>~/Library/Logs/bg3_modalert.out.log</string>
+  <key>StandardErrorPath</key><string>~/Library/Logs/bg3_modalert.err.log</string>
+  <key>EnvironmentVariables</key><dict>
+    <key>PYTHONUNBUFFERED</key><string>1</string>
+  </dict>
+</dict></plist>
