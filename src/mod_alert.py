@@ -10,6 +10,10 @@ from dotenv import load_dotenv
 from .state import load_state, save_state
 from .mailer import send_email
 
+_DRY_RUN = False
+_VERBOSE = False
+
+
 # Load .env from the repo root (one level up from /src)
 load_dotenv(Path(__file__).resolve().parents[1] / ".env")
 
@@ -22,7 +26,7 @@ def find_games(query: str) -> None:
     plat = (os.getenv("MODIO_PLATFORM") or "ps5").lower()
     if not key:
         raise RuntimeError("Set MODIO_API_KEY in your .env first.")
-    r = requests.get(
+    r = _get(
         f"{base}/games",
         params={"api_key": key, "_q": query, "_limit": 50},
         headers={"X-Modio-Platform": plat},
@@ -45,7 +49,7 @@ def _resolve_game_id(game_value: str) -> str:
 
     for base in [os.getenv("MODIO_BASE") or "https://g-1.modapi.io/v1", "https://api.mod.io/v1"]:
         try:
-            r = requests.get(f"{base}/games", params=params, headers=headers, timeout=15)
+            r = _get(f"{base}/games", params=params, headers=headers, timeout=15)
             r.raise_for_status()
             items = r.json().get("data", [])
             if items:
@@ -72,7 +76,7 @@ def get_mod_count() -> int:
     last_err = None
     for base in [os.getenv("MODIO_BASE") or "https://g-1.modapi.io/v1", "https://api.mod.io/v1"]:
         try:
-            r = requests.get(f"{base}/games/{gid}/mods", params=params, headers=headers, timeout=15)
+            r = _get(f"{base}/games/{gid}/mods", params=params, headers=headers, timeout=15)
             if r.status_code == 404:
                 last_err = f"404 at {r.url}"
                 continue
@@ -85,6 +89,44 @@ def get_mod_count() -> int:
             continue
 
     raise RuntimeError(f"Could not fetch PS5-only mod count (last error: {last_err})")
+def _sleep(sec: float):
+    try:
+        time.sleep(sec)
+    except KeyboardInterrupt:
+        raise
+
+def _get(url, *, params=None, headers=None, timeout=None, tries=None, backoff=None):
+    """requests.get with retries/backoff for 429/5xx and network errors."""
+    timeout = timeout or int(os.getenv("HTTP_TIMEOUT", "15"))
+    tries   = tries   or int(os.getenv("HTTP_TRIES", "3"))
+    backoff = float(backoff or os.getenv("HTTP_BACKOFF", "2.0"))
+
+    last_err = None
+    for attempt in range(1, tries + 1):
+        try:
+            r = requests.get(url, params=params, headers=headers, timeout=timeout)
+            if r.status_code in (429, 500, 502, 503, 504):
+                # use Retry-After if provided; otherwise exponential backoff
+                ra = r.headers.get("Retry-After")
+                delay = float(ra) if ra and ra.isdigit() else (backoff ** (attempt - 1))
+                if _VERBOSE:
+                    print(f"[retry] HTTP {r.status_code} -> sleeping {delay:.1f}s ({r.url})")
+                _sleep(delay)
+                last_err = RuntimeError(f"HTTP {r.status_code} @ {r.url}")
+                continue
+            r.raise_for_status()
+            return r
+        except requests.RequestException as e:
+            last_err = e
+            if attempt < tries:
+                delay = backoff ** (attempt - 1)
+                if _VERBOSE:
+                    print(f"[retry] {e} -> sleeping {delay:.1f}s ({url})")
+                _sleep(delay)
+                continue
+            break
+    raise RuntimeError(f"request failed after {tries} tries: {last_err}")
+
 
 # ---- watcher ---------------------------------------------------------------
 
@@ -96,7 +138,26 @@ def run_check():
         print(f"Error fetching PS5 count: {e}")
         return  # do not change baseline / do not email
 
+    # --- DRY RUN: no state updates, no email ---
+    if _DRY_RUN:
+        print(f"[dry-run] PS5 count = {current} (baseline={state.get('last_count')})")
+        return
+
     last = state.get("last_count")
+
+    # --- SPIKE GUARD ---
+    # If the increase is absurdly large (API glitch), ignore it.
+    max_delta = int(os.getenv("MAX_DELTA", "200"))  # tune via .env if you like
+    if last is not None:
+        delta = current - last
+        if delta > max_delta:
+            print(f"Ignoring spike {last} -> {current} (> MAX_DELTA={max_delta}).")
+            # still record when we checked
+            state["last_checked"] = int(time.time())
+            save_state(state)
+            return
+
+    # --- Normal flow ---
     if last is None:
         state["last_count"] = current
     elif current > last:
@@ -111,21 +172,31 @@ def run_check():
     save_state(state)
     print("PS5 count =", current)
 
+
 # ---- CLI -------------------------------------------------------------------
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--interval-mins", type=int, default=0,
-        help="If >0, run forever every N minutes. If 0, run once."
-    )
+    parser.add_argument("--interval-mins", type=int, default=0,
+                        help="If >0, run forever every N minutes. If 0, run once.")
     parser.add_argument("--test-email", action="store_true",
                         help="Send a test email and exit.")
     parser.add_argument("--baseline", type=int,
                         help="Set/override baseline count and exit.")
     parser.add_argument("--find-game", type=str,
                         help="Search mod.io games by name and print IDs.")
+    # NEW flags
+    parser.add_argument("--dry-run", action="store_true",
+                        help="Fetch and print; do not update state or send email.")
+    parser.add_argument("-v", "--verbose", action="store_true",
+                        help="Verbose retry/backoff logging.")
+
     args = parser.parse_args()
+
+    # Make flags visible to run_check()/network helpers
+    global _DRY_RUN, _VERBOSE
+    _DRY_RUN = args.dry_run
+    _VERBOSE = args.verbose
 
     if args.find_game:
         find_games(args.find_game)
@@ -153,6 +224,7 @@ def main():
             run_check()
     except RuntimeError as e:
         print(f"Error: {e}")
+
 
 if __name__ == "__main__":
     main()
