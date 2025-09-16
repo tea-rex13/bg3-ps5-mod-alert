@@ -41,16 +41,16 @@ Each step is a separate branch + PR so the repo history tells the “story” of
   - `state.py` (JSON load/save)
   - `mailer.py` (SMTP via `.env`, tested; note macOS certs fix)
   - `mod_alert.py` (`run_check`, CLI: `--test-email`, `--baseline`, `--interval-mins`)
-- [ ] **Step 05 — Documentation polish**
+- [x] **Step 05 — Documentation polish**
   - Clean `.env.example` placeholders (no secrets)
   - README: setup, running, env variables, TLS fix note, troubleshooting
-- [ ] **Step 06 — Implement `get_mod_count` (mod.io API)**
+- [x] **Step 06 — Implement `get_mod_count` (mod.io API)**
   - `.env` keys: `MODIO_API_KEY`, `MODIO_GAME_ID`, `MODIO_PLATFORM=ps5`
   - Add `--find-game <name>` helper to discover game ID
   - Use `result_total` (fallback to `len(data)` if needed)
-- [ ] **Step 07 — Scheduling**
+- [x] **Step 07 — Scheduling**
   - macOS LaunchAgent instructions (run every N minutes)
-- [ ] **Step 08 — Nice-to-haves**
+- [x] **Step 08 — Nice-to-haves**
   - Logging + retries
   - `--simulate` mode / cooldown batching
   - Unit tests for state/mailer/count
