@@ -60,7 +60,7 @@ def get_mod_count() -> int:
     No unfiltered fallbacks. If the filtered endpoint fails, raise RuntimeError.
     """
     key  = os.getenv("MODIO_API_KEY")
-    game = os.getenv("MODIO_GAME_ID")
+    game = (os.getenv("MODIO_GAME_ID") or "").strip()
     plat = (os.getenv("MODIO_PLATFORM") or "ps5").lower()
     if not key or not game:
         raise RuntimeError("Missing MODIO_API_KEY or MODIO_GAME_ID in .env")
@@ -115,8 +115,10 @@ def run_check():
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--interval-mins", type=int, default=0,
-                        help="If >0, run forever every N minutes. If 0, run once.")
+    parser.add_argument(
+        "--interval-mins", type=int, default=0,
+        help="If >0, run forever every N minutes. If 0, run once."
+    )
     parser.add_argument("--test-email", action="store_true",
                         help="Send a test email and exit.")
     parser.add_argument("--baseline", type=int,
